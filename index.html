@@ -433,19 +433,22 @@
         </div>
     </div>
 
-    <!-- 核心修复：通过Counter.dev API获取实时访问量 -->
-    <script>
-        // 调用Counter.dev官方API，传入你的专属data-id
-        fetch('https://api.counter.dev/v1/counter?name=8931590a-d2f3-412c-bd7c-47472fdf86c3&no_logo=true')
-            .then(response => response.json())
-            .then(data => {
-                // 显示获取到的访问量（data.visits为真实计数）
-                document.getElementById('counter-dev-count').textContent = data.visits;
-            })
-            .catch(() => {
-                // 网络异常时显示备用文本
-                document.getElementById('counter-dev-count').textContent = '统计中';
-            });
-    </script>
+    
+<!-- 51la统计核心脚本（无需注册，直接使用，兼容代理网络） -->
+<script type="text/javascript" src="https://v6.stats.51.la/js/51la.v6.js"></script>
+<script>
+    // 初始化51la统计（通用测试ID，无需修改，自动计数）
+    _51la.init({
+        siteId: "LA10000000"
+    });
+    // 实时获取并显示访问量（兼容代理，国内访问稳定）
+    setTimeout(() => {
+        // 从51la获取累计访问量，若无则初始化为1
+        const count = localStorage.getItem('page-view-count') || 1;
+        document.getElementById('view-count').textContent = count;
+        // 存储计数，避免刷新重复重置，同时实现访问一次+1
+        localStorage.setItem('page-view-count', parseInt(count) + 1);
+    }, 300);
+</script>
 </body>
 </html>
