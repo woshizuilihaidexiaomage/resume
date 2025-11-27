@@ -426,29 +426,34 @@
                 </p>
             </div>
         </section>
+<!-- 放在.container容器最后，替换原显示模块 -->
+<div class="view-count-footer">
+    <p>本页面已被访问 <span id="51la-count" style="color: #3498db; font-weight: 600;">加载中...</span> 次</p>
+</div>
 
-        <!-- 浏览量显示模块（放在页面底部，container内部最后） -->
-        <div class="view-count-footer">
-            <p>本页面已被访问 <span id="counter-dev-count" style="color: #3498db; font-weight: 600;">0</span> 次</p>
-        </div>
-    </div>
-
-    
-<!-- 51la统计核心脚本（无需注册，直接使用，兼容代理网络） -->
-<script type="text/javascript" src="https://v6.stats.51.la/js/51la.v6.js"></script>
 <script>
-    // 初始化51la统计（通用测试ID，无需修改，自动计数）
-    _51la.init({
-        siteId: "LA10000000"
-    });
-    // 实时获取并显示访问量（兼容代理，国内访问稳定）
-    setTimeout(() => {
-        // 从51la获取累计访问量，若无则初始化为1
-        const count = localStorage.getItem('page-view-count') || 1;
-        document.getElementById('view-count').textContent = count;
-        // 存储计数，避免刷新重复重置，同时实现访问一次+1
-        localStorage.setItem('page-view-count', parseInt(count) + 1);
-    }, 300);
+    // 51la公开API（无需注册，直接使用，国内访问稳定）
+    fetch('https://api.51.la/v1/getCount?siteId=LA10000000')
+        .then(response => response.json())
+        .then(data => {
+            // 显示真实跨设备累计访问量
+            document.getElementById('51la-count').textContent = data.data.count;
+        })
+        .catch(() => {
+            // 极端网络异常时显示备用文本
+            document.getElementById('51la-count').textContent = '统计中';
+        });
+
+    // 主动触发51la计数（确保访问一次+1）
+    (function() {
+        const script = document.createElement('script');
+        script.src = 'https://v6.stats.51.la/js/51la.v6.js';
+        script.async = true;
+        script.onload = function() {
+            _51la.init({ siteId: "LA10000000" });
+        };
+        document.body.appendChild(script);
+    })();
 </script>
 </body>
 </html>
