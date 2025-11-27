@@ -427,33 +427,41 @@
             </div>
         </section>
 <!-- 放在.container容器最后，替换原显示模块 -->
+<!-- 不蒜子浏览量统计（整合版：显示模块+统计脚本） -->
+<!-- 1. 浏览量显示模块（放在.container容器最后） -->
 <div class="view-count-footer">
-    <p>本页面已被访问 <span id="51la-count" style="color: #3498db; font-weight: 600;">加载中...</span> 次</p>
+    <p>本页面已被访问 <span id="view-count" style="color: #3498db; font-weight: 600;">1</span> 次</p>
 </div>
 
+<!-- 2. 统计核心脚本（放在</body>标签前，紧接显示模块之后） -->
 <script>
-    // 51la公开API（无需注册，直接使用，国内访问稳定）
-    fetch('https://api.51.la/v1/getCount?siteId=LA10000000')
-        .then(response => response.json())
-        .then(data => {
-            // 显示真实跨设备累计访问量
-            document.getElementById('51la-count').textContent = data.data.count;
-        })
-        .catch(() => {
-            // 极端网络异常时显示备用文本
-            document.getElementById('51la-count').textContent = '统计中';
-        });
+    // 本地计数兜底（立即显示，避免空白）
+    let localCount = localStorage.getItem('page-view') || 1;
+    localCount = parseInt(localCount) + 1;
+    localStorage.setItem('page-view', localCount);
+    document.getElementById('view-count').textContent = localCount;
 
-    // 主动触发51la计数（确保访问一次+1）
+    // 不蒜子跨设备统计（国内稳定，代理适配）
     (function() {
-        const script = document.createElement('script');
-        script.src = 'https://v6.stats.51.la/js/51la.v6.js';
-        script.async = true;
-        script.onload = function() {
-            _51la.init({ siteId: "LA10000000" });
+        const bsScript = document.createElement('script');
+        bsScript.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+        bsScript.async = true;
+        // 脚本加载完成后，同步跨设备总计数
+        bsScript.onload = function() {
+            setTimeout(() => {
+                if (window.busuanzi && window.busuanzi.pageview) {
+                    document.getElementById('view-count').textContent = window.busuanzi.pageview;
+                }
+            }, 1000);
         };
-        document.body.appendChild(script);
+        // 脚本加载失败，仍显示本地计数
+        bsScript.onerror = function() {
+            document.getElementById('view-count').textContent = localCount;
+        };
+        document.body.appendChild(bsScript);
     })();
+</script>
+
 </script>
 </body>
 </html>
